@@ -2,13 +2,87 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>DarksAngels Ranking</title>
+    <title>Ranking de Puntos</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #eee;
+        }
+    </style>
 </head>
 <body>
 
-    <h1>🏆 Ranking DarksAngels</h1>
+<h1>🏆 Ranking de Puntos</h1>
 
-    <p>La web está funcionando correctamente.</p>
+<div id="ranking">Cargando ranking...</div>
+
+<script>
+const SHEET_ID = "19X89RIAa6xHB6R_Ei7ICzRBv1lMpjnznfY7ou6rvXPk";
+
+fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`)
+.then(res => res.text())
+.then(data => {
+
+    const json = JSON.parse(
+        data.substring(47).slice(0, -2)
+    );
+
+    let rows = json.table.rows;
+
+    // Ordenar por Total (columna 4)
+    rows.sort((a, b) => {
+        const totalA = a.c[3]?.v ?? 0;
+        const totalB = b.c[3]?.v ?? 0;
+        return totalB - totalA;
+    });
+
+    let html = `
+        <table>
+            <tr>
+                <th>Puesto</th>
+                <th>Jugador</th>
+                <th>Ayuda</th>
+                <th>Construcción</th>
+                <th>Total</th>
+            </tr>
+    `;
+
+    rows.forEach((row, index) => {
+
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${row.c[0]?.v ?? ""}</td>
+                <td>${row.c[1]?.v ?? 0}</td>
+                <td>${row.c[2]?.v ?? 0}</td>
+                <td>${row.c[3]?.v ?? 0}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById("ranking").innerHTML = html;
+});
+</script>
 
 </body>
 </html>
